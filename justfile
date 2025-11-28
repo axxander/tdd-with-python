@@ -1,5 +1,5 @@
 # Paths to lint/format/check (exclude Django-generated files)
-paths := "lists functional_tests.py main.py"
+paths := "lists functional_tests main.py"
 
 # Runners
 UV := "uv run"
@@ -14,7 +14,7 @@ _django cmd *args:
 serve:
     @just _django runserver
 
-# Run tests
+# Run tests: e.g. `just test lists` will run unit tests for the test app
 test *args:
     @just _django test {{args}}
 
