@@ -40,13 +40,7 @@ class NewVisitorTest(unittest.TestCase):
         # She enters "Use peacock feathers to make a fly" (Edith is very methodical)
         table = self.browser.find_element(By.ID, "id_list_table")
         rows = table.find_elements(By.TAG_NAME, "tr")  
-        self.assertTrue(
-            any(row.text == "1: Buy peacock feathers" for row in rows),
-            "New to-do item did not appear in table",
-        )
-
-        # The page updates again, and now shows both items on her list
-        self.fail("Finish the test!")
+        self.assertIn("1: Buy peacock feathers", [row.text for row in rows])
 
         # Satisfied, she goes back to sleep
 
