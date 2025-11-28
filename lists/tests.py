@@ -24,15 +24,26 @@ class HomePageTest(TestCase):
         #  two assertions for now
         self.assertContains(response, '<input')
         self.assertContains(response, 'name="item_text"')
+    
+    def test_displays_all_list_items(self):
+        Item.objects.create(text="itemey 1")
+        Item.objects.create(text="itemey 2")
+
+        response = self.client.get("/")
+
+        self.assertContains(response, "itemey 1")
+        self.assertContains(response, "itemey 2")
 
     def test_can_save_a_POST_request(self):
-        response = self.client.post("/", data={"item_text": "A new list item"})
+        self.client.post("/", data={"item_text": "A new list item"})
         
         self.assertEqual(Item.objects.count(), 1)
         new_item = Item.objects.first()
         self.assertEqual(new_item.text, "A new list item")
 
-        # always redirect after a post (traditional ssr site)
+
+    def test_redirects_after_POST(self):
+        response = self.client.post("/", data={"item_text": "A new list item"})
         self.assertRedirects(response, "/")
     
     @unittest.expectedFailure

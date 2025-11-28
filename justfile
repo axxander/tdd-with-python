@@ -1,19 +1,34 @@
 # Paths to lint/format/check (exclude Django-generated files)
 paths := "lists functional_tests.py main.py"
 
+# Runners
+UV := "uv run"
 
 default: 
     just --list
 
+# Private recipe to run Django commands (uses UV runner)
+_django cmd *args:
+    {{UV}} manage.py {{cmd}} {{args}}
+
 serve:
-    uv run manage.py runserver
+    @just _django runserver
 
 # Run tests
 test *args:
-    uv run manage.py test
+    @just _django test {{args}}
 
+# Create migration based on model changes 
+migrations:
+    @just _django makemigrations
+
+# Apply migrations
 migrate:
-    uv run manage.py makemigrations
+    @just _django migrate
+
+# Delete data
+flush:
+    @just _django flush
 
 # Run linter
 lint: _ruff _isort
@@ -28,16 +43,16 @@ typecheck: _mypy
 check: lint typecheck
 
 _ruff: 
-    uv run ruff check {{paths}}
+    {{UV}} ruff check {{paths}}
 
 _ruff-fix:
-    uv run ruff check --fix {{paths}}
+    {{UV}} ruff check --fix {{paths}}
 
 _isort:
-    uv run isort --check-only {{paths}}
+    {{UV}} isort --check-only {{paths}}
 
 _isort-fix:
-    uv run isort {{paths}}
+    {{UV}} isort {{paths}}
 
 _mypy:
-    uv run mypy {{paths}}
+    {{UV}} mypy {{paths}}
