@@ -1,3 +1,5 @@
+import unittest
+
 from django.test import TestCase
 from lists.models import Item
 
@@ -24,8 +26,22 @@ class HomePageTest(TestCase):
 
     def test_can_save_a_POST_request(self):
         response = self.client.post("/", data={"item_text": "A new list item"})
-        self.assertContains(response, "A new list item")
-        self.assertTemplateUsed(response, "home.html")
+        
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, "A new list item")
+
+        # always redirect after a post (traditional ssr site)
+        self.assertRedirects(response, "/")
+    
+    @unittest.expectedFailure
+    def test_can_save_multiple_items(self):
+        # test via http layer, not db-like methods given in ItemModelTest
+        # won't work at present
+        self.client.post("/", data={"item_text": "first item"})
+        response = self.client.post("/", data={"item_text": "second item"})
+        self.assertContains(response, "first item")
+        self.assertContains(response, "second item")
 
 
 class ItemModelTest(TestCase):
@@ -45,3 +61,7 @@ class ItemModelTest(TestCase):
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, "The first (ever) list item")
         self.assertEqual(second_saved_item.text, "Item the second")
+
+    def test_only_saves_items_when_necessary(self):
+        self.client.get("/")
+        self.assertEqual(Item.objects.count(), 0)
