@@ -1,4 +1,4 @@
-default:
+default: 
     just --list
 
 serve:
@@ -7,3 +7,6 @@ serve:
 # Run tests
 test *args:
     uv run manage.py test
+
+migrate:
+    uv run manage.py makemigrations
