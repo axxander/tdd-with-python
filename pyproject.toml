@@ -11,6 +11,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "beautifulsoup4>=4.14.3",
     "django-stubs[compatible-mypy]>=5.2.7",
     "isort>=7.0.0",
     "mypy>=1.18.2",
