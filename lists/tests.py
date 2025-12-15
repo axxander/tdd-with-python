@@ -21,7 +21,7 @@ class HomePageTest(TestCase):
         response = self.client.get("/")
         soup = BeautifulSoup(response.content, "html.parser")
 
-        form = soup.find("form", {"method": "POST", "action": "/"})
+        form = soup.find("form", {"method": "POST", "action": "/lists/new"})
         self.assertIsNotNone(form)
 
         # assertContains does simple substring formatting, so it will
@@ -29,18 +29,6 @@ class HomePageTest(TestCase):
         #  two assertions for now
         self.assertContains(response, '<input')
         self.assertContains(response, 'name="item_text"')
-
-    def test_can_save_a_POST_request(self):
-        self.client.post("/", data={"item_text": "A new list item"})
-        
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
-        self.assertEqual(new_item.text, "A new list item")
-
-
-    def test_redirects_after_POST(self):
-        response = self.client.post("/", data={"item_text": "A new list item"})
-        self.assertRedirects(response, "/lists/the-only-list-in-the-world/")
     
     @unittest.expectedFailure
     def test_can_save_multiple_items(self):
@@ -61,7 +49,7 @@ class ListViewTest(TestCase):
         response = self.client.get("/lists/the-only-list-in-the-world/")
         soup = BeautifulSoup(response.content, "html.parser")
 
-        form = soup.find("form", {"method": "POST", "action": "/"})
+        form = soup.find("form", {"method": "POST", "action": "/lists/new"})
         self.assertIsNotNone(form)
 
         inputbox = soup.find("input", {"name": "item_text"})
@@ -75,6 +63,18 @@ class ListViewTest(TestCase):
 
         self.assertContains(response, "itemey 1")
         self.assertContains(response, "itemey 2")
+
+
+class NewListTest(TestCase):
+    def test_can_save_a_POST_request(self):
+        self.client.post("/lists/new", data={"item_text": "A new list item"})
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.get()
+        self.assertEqual(new_item.text, "A new list item")
+    
+    def test_redirects_after_POST(self):
+        response = self.client.post("/lists/new", data={"item_text": "A new list item"})
+        self.assertRedirects(response, "/lists/the-only-list-in-the-world/")
 
 
 class ItemModelTest(TestCase):
